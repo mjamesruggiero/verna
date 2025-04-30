@@ -46,7 +46,7 @@ def main():
     logging.debug(f"types: {types}")
 
     dt = datetime.datetime.now()
-    filepath = mk_filepath(TARGET_DIR, label, dt)
+    filepath = mk_filepath(target, label, dt)
     filepath.mkdir()
     logging.debug(f"--> Ready to copy files of type {types} to {filepath}")
 
