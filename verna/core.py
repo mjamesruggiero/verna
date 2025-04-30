@@ -4,6 +4,10 @@ from collections import Counter
 import datetime
 from re import sub
 from pathlib import Path, PosixPath
+import logging
+import shutil
+
+logging.basicConfig(level=logging.DEBUG, format="%(lineno)d\t%(message)s")
 
 
 def count_files_by_extension(directory):
@@ -11,7 +15,7 @@ def count_files_by_extension(directory):
 
     for root, _, files in os.walk(directory):
         for file in files:
-            ext = os.path.splitext(file)[1].lower()
+            ext = os.path.splitext(file)[1]
             file_counts[ext] += 1
 
     return file_counts
@@ -32,6 +36,29 @@ def main():
 
     for ext, count in sorted(file_counts.items()):
         print(f"{ext if ext else '[no extension]'}\t{count}")
+
+    source_path = Path(args.directory)
+
+    label = input("What is the label? ")
+    target = input("What is the target dir? ")
+    type_str = str(input("What are the file extensions? "))
+    types = type_str.split(",")
+    logging.debug(f"types: {types}")
+
+    dt = datetime.datetime.now()
+    filepath = mk_filepath(TARGET_DIR, label, dt)
+    filepath.mkdir()
+    logging.debug(f"--> Ready to copy files of type {types} to {filepath}")
+
+    for t in types:
+        glob_path = "**/*" + t
+        logging.debug(f"glob_path: {glob_path}")
+        globs = sorted(source_path.glob(glob_path))
+
+        logging.debug(f"found {len(globs)} files matching extension {t}:")
+        for g in globs:
+            logging.debug(f"copying {g} to {filepath}")
+            shutil.copy(g, filepath)
 
 
 def canonical_date(dt: datetime) -> str:
